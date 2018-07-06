@@ -1,0 +1,3 @@
+{application, cpge, [{description, "CloudI Process Groups extensions"},
+                     {vsn, "0.0.1"},
+                     {applications, [stdlib, kernel, cpg]}]}.
