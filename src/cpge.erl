@@ -51,10 +51,10 @@ get_nearest_pid(GroupName) ->
 get_nearby_members(Scope, GroupName) ->
     case cpg:get_remote_members(Scope, GroupName) of
         {ok, _, [_|_] = L} ->
-            [_, H] = binary:split(atom_to_binary(node(), utf8), <<$@>>),
+            H = drop_prefix(node()),
             {ok, GroupName, lists:foldl(fun(P, {N, Ps} = A) ->
-                                            case binary:split(atom_to_binary(node(P), utf8), <<$@>>) of
-                                                [_, H] -> {N + 1, [P|Ps]};
+                                            case drop_prefix(node()) of
+                                                H -> {N + 1, [P|Ps]};
                                                 _ -> A
                                             end
                                         end, {0, []}, L)};
@@ -64,12 +64,14 @@ get_nearby_members(Scope, GroupName) ->
 get_nearby_members(GroupName) ->
     case cpg:get_remote_members(GroupName) of
         {ok, _, [_|_] = L} ->
-            [_, H] = binary:split(atom_to_binary(node(), utf8), <<$@>>),
+            H = drop_prefix(node()),
             {ok, GroupName, lists:foldl(fun(P, {N, Ps} = A) ->
-                                            case binary:split(atom_to_binary(node(P), utf8), <<$@>>) of
-                                                [_, H] -> {N + 1, [P|Ps]};
+                                            case drop_prefix(node()) of
+                                                H -> {N + 1, [P|Ps]};
                                                 _ -> A
                                             end
                                         end, {0, []}, L)};
         R -> R
     end.
+
+drop_prefix(A) -> lists:dropwhile(fun(C) -> C =/= $@ end, atom_to_list(A)).
